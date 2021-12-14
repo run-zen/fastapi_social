@@ -4,10 +4,13 @@ from sqlalchemy.orm import Session
 from .. import responseSchemas, models, schemas
 from app.database import get_db
 
-router = APIRouter()
+router = APIRouter(
+    prefix='/posts',
+    tags=["Posts"]
+)
 
 
-@router.get('/posts', response_model=responseSchemas.MultiplePost)
+@router.get('/', response_model=responseSchemas.MultiplePost)
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM posts""")
     # posts = cursor.fetchall()
@@ -15,7 +18,7 @@ def get_posts(db: Session = Depends(get_db)):
     return {"data": posts}
 
 
-@router.post('/posts', response_model=responseSchemas.SinglePost)
+@router.post('/', response_model=responseSchemas.SinglePost)
 def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""",
     #                (post.title, post.content, post.published))
@@ -30,7 +33,7 @@ def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(g
     return {"data": new_post, "message": 'Post successfully created'}
 
 
-@router.get("/posts/{id}", response_model=responseSchemas.SinglePost)
+@router.get("/{id}", response_model=responseSchemas.SinglePost)
 def get_post_by_id(id: int, db: Session = Depends(get_db)):
     # cursor.execute(""" SELECT * FROM posts
     # WHERE id = %s""", (str(id)))
@@ -44,7 +47,7 @@ def get_post_by_id(id: int, db: Session = Depends(get_db)):
     return {"data": post}
 
 
-@router.delete('/posts/{id}')
+@router.delete('/{id}')
 def delete_post(id: int, res: Response, db: Session = Depends(get_db)):
     # cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (str(id),))
     # deleted_post = cursor.fetchone()
@@ -61,7 +64,7 @@ def delete_post(id: int, res: Response, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put('/posts/{id}', response_model=responseSchemas.SinglePost)
+@router.put('/{id}', response_model=responseSchemas.SinglePost)
 def update_post(id: int, post: schemas.PostUpdate, res: Response, db: Session = Depends(get_db)):
     # cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""",
     #                (post.title, post.content, post.published, str(id)))
