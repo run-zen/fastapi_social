@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from app.schemas import PostBase,UserOut
+from app.schemas import PostBase, UserOut
 from pydantic import BaseModel
 
 
@@ -34,4 +34,9 @@ class SinglePost(ResponseBase):
 
 class SingleUser(ResponseBase):
     data: User
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 

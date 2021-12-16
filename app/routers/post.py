@@ -1,7 +1,7 @@
 from fastapi import Response, status, HTTPException, APIRouter
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
-from .. import responseSchemas, models, schemas
+from .. import responseSchemas, models, schemas, oauth2
 from app.database import get_db
 
 router = APIRouter(
@@ -10,7 +10,7 @@ router = APIRouter(
 )
 
 
-@router.get('/', response_model=responseSchemas.MultiplePost)
+@router.get('/', response_model=responseSchemas.MultiplePost, )
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM posts""")
     # posts = cursor.fetchall()
@@ -19,7 +19,8 @@ def get_posts(db: Session = Depends(get_db)):
 
 
 @router.post('/', response_model=responseSchemas.SinglePost)
-def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(get_db)):
+def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(get_db),
+                current_user: object = Depends(oauth2.get_current_user)):
     # cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING *""",
     #                (post.title, post.content, post.published))
     #
@@ -34,7 +35,7 @@ def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(g
 
 
 @router.get("/{id}", response_model=responseSchemas.SinglePost)
-def get_post_by_id(id: int, db: Session = Depends(get_db)):
+def get_post_by_id(id: int, db: Session = Depends(get_db), current_user: object = Depends(oauth2.get_current_user)):
     # cursor.execute(""" SELECT * FROM posts
     # WHERE id = %s""", (str(id)))
     #

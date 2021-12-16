@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class PostBase(BaseModel):
@@ -27,3 +28,7 @@ class UserOut(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class TokenData(BaseModel):
+    id: Optional[str] = None
