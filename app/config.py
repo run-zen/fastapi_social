@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     access_token_expire_days: int
 
     class Config:
-        env_file= "local.env"
+        env_file = "local.env"
 
 
 settings = Settings()
