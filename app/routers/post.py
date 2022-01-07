@@ -6,6 +6,8 @@ from .. import responseSchemas, models, schemas, oauth2
 from app.database import get_db
 from typing import Optional
 
+from ..controllers.post_controller import get_all_posts, get_generic_post_query
+
 router = APIRouter(
     prefix='/posts',
     tags=["Posts"]
@@ -13,29 +15,14 @@ router = APIRouter(
 
 
 @router.get('/', response_model=responseSchemas.MultiplePost, )
-def get_posts(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, sortBy :str = 'date', user_id: int = None, search: Optional[str] = None):
-
-    print(search)
-    post_query = db.query(models.Post)
-    if user_id:
-        post_query = post_query.filter(models.Post.user_id == user_id)
-
-    if search:
-        post_query = post_query.filter(func.lower(models.Post.title).like(f"%{search.lower()}%"))
-    totalResults = post_query.count()
-    post_query = post_query.order_by(None)
-    if sortBy == 'title':
-        post_query = post_query.order_by(models.Post.title)
-    else:
-        post_query = post_query.order_by(desc(models.Post.created_at))
-    posts = post_query.offset(skip).limit(limit).all()
-    return {"data": posts, "foundResults": totalResults, "numResults": len(posts)}
+def get_posts(db: Session = Depends(get_db), limit: int = 10, skip: int = 0, sortBy: str = 'date', user_id: int = None,
+              search: Optional[str] = None):
+    return get_all_posts(db, limit, skip, sortBy, user_id, search)
 
 
 @router.get("/{id}", response_model=responseSchemas.SinglePost)
 def get_post_by_id(id: int, db: Session = Depends(get_db)):
-
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    post = get_generic_post_query(db).filter(models.Post.id == id).first()
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id {id} not found")
 
@@ -47,7 +34,6 @@ def get_post_by_id(id: int, db: Session = Depends(get_db)):
 @router.post('/', response_model=responseSchemas.SinglePost)
 def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(get_db),
                 current_user: schemas.UserSchema = Depends(oauth2.get_current_user)):
-
     post_data: dict = post.dict()
     post_data['user_id'] = current_user.id
     new_post = models.Post(**post_data)
@@ -61,7 +47,6 @@ def create_post(post: schemas.PostCreate, res: Response, db: Session = Depends(g
 @router.delete('/{id}')
 def delete_post(id: int, res: Response, db: Session = Depends(get_db),
                 current_user: schemas.UserSchema = Depends(oauth2.get_current_user)):
-
     post_query = db.query(models.Post).filter(models.Post.id == id)
     post = post_query.first()
 
@@ -80,7 +65,6 @@ def delete_post(id: int, res: Response, db: Session = Depends(get_db),
 @router.put('/{id}', response_model=responseSchemas.SinglePost)
 def update_post(id: int, post: schemas.PostUpdate, res: Response, db: Session = Depends(get_db),
                 current_user=Depends(oauth2.get_current_user)):
-
     post_query = db.query(models.Post).filter(models.Post.id == id)
     updated_post = post_query.first()
     if not updated_post:

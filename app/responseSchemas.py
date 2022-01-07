@@ -22,6 +22,14 @@ class Post(PostBase):
         orm_mode = True
 
 
+class PostOut(BaseModel):
+    Post: Post
+    votes: int
+
+    class Config:
+        orm_mode = True
+
+
 class ResponseBase(BaseModel):
     message: Optional[str]
 
@@ -29,11 +37,11 @@ class ResponseBase(BaseModel):
 class MultiplePost(ResponseBase):
     foundResults: Optional[int]
     numResults: Optional[int]
-    data: List[Post]
+    data: List[PostOut]
 
 
 class SinglePost(ResponseBase):
-    data: Post
+    data: PostOut
 
 
 class SingleUser(ResponseBase):
