@@ -12,7 +12,8 @@ from app import schemas
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://chattynatty.netlify.app",
 ]
 
 app.add_middleware(
