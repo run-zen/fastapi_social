@@ -51,3 +51,33 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User does not exists")
 
     return user
+
+
+def verify_contact_token(token: str, credentials_exception):
+    try:
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        phone_number: str = payload.get('phone_number')
+
+        if phone_number is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(id=phone_number)
+    except JWTError:
+        raise credentials_exception
+
+    return token_data
+
+
+def get_current_contact(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                          detail=f"Could not validate credentials",
+                                          headers={'WWW-Authenticate': "Bearer"})
+
+    token_data = verify_contact_token(token=token, credentials_exception=credentials_exception)
+
+    contact = db.query(models.Contact).filter(models.Contact.phone_number == token_data.id).first()
+
+    if not contact:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User does not exists")
+
+    return contact

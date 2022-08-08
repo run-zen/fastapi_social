@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     database_port: str
     database_name: str
     database_username: str
+    Messaging_Service_SID: str
+    Account_SID: str
+    Auth_token: str
 
     secret_key: str
     algorithm: str

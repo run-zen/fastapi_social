@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, conint, validator
-from typing import Optional
+from typing import Optional, List
 
 
 class PostSchema(BaseModel):
@@ -16,6 +16,21 @@ class UserSchema(BaseModel):
     id: int
     email: str
     password: str
+    created_at: datetime
+
+
+class ContactSchema(BaseModel):
+    id: int
+    phone_number: str
+    name: str
+    password: str
+    created_at: datetime
+
+
+class ChatSchema(BaseModel):
+    id: int
+    participants: List[str]
+    removed_participants: List[str]
     created_at: datetime
 
 
@@ -60,3 +75,68 @@ class UserLogin(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[str] = None
+
+
+class ContactOut(BaseModel):
+    phone_number: str
+    name: Optional[str]
+
+    @validator('phone_number')
+    def receiver_validate(cls, v: str):
+        if len(v) == 10:
+            return v
+        raise ValueError('Please enter correct receiver phone number')
+
+
+class ContactCreate(ContactOut):
+    password: str
+
+
+class ContactLogin(BaseModel):
+    phone_number: str
+    password: str
+
+    @validator('phone_number')
+    def receiver_validate(cls, v: str):
+        if len(v) == 10:
+            return v
+        raise ValueError('Please enter correct receiver phone number')
+
+
+class CreateChat(BaseModel):
+    participant: str
+
+
+class ChatOut(BaseModel):
+    participants: List[str]
+
+
+class SendMessage(BaseModel):
+    receiver: str
+    message: str
+
+    @validator('receiver')
+    def receiver_validate(cls, v: str):
+        if len(v) == 10:
+            return v
+        raise ValueError('Please enter correct receiver phone number')
+
+
+class GetMessage(BaseModel):
+    chat_id: int
+
+
+class GetMessageByID(BaseModel):
+    id: int
+
+
+class CreateMessage(BaseModel):
+    chat_id: int
+    receiver_id: int
+    sender_id: int
+    text_message: str
+
+
+class UpdateTime(BaseModel):
+    id: int
+

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from app.schemas import PostBase, UserOut
+from app.schemas import PostBase, UserOut, ContactOut, CreateChat, ChatOut
 from pydantic import BaseModel
 
 
@@ -31,6 +31,7 @@ class PostOut(BaseModel):
 
 
 class ResponseBase(BaseModel):
+    statuscode: Optional[int] = 200
     message: Optional[str]
 
 
@@ -51,3 +52,34 @@ class SingleUser(ResponseBase):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class Contact(ContactOut):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class SingleContact(ResponseBase):
+    data: Contact
+    access_token: Optional[str]
+    token_type: Optional[str]
+
+
+class Chat(ChatOut):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class SingleChat(ResponseBase):
+    data: Chat
+
+
+class ContactLogin(BaseModel):
+    access_token: str
+    token_type: str
+    user: Contact
